@@ -1,8 +1,10 @@
 import streamlit as st 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
 '''
 This file is created for the visualization
@@ -17,20 +19,20 @@ def run():
                 """)
     
     df = pd.read_csv('application_record.csv')
+
+    
+    df1 = pd.read_csv('df_good.csv')
     
     st.subheader("""
                  
-                 Now, let's different type of graphs: """)
+                 Now, let's see different type of graphs. Choose one: """)
     
-    
-        
-
     # Pregunta al usuario qué gráfico desea ver
     selected_chart = st.selectbox("Select a chart", ["Bar plot gender", "Bar plot realty", "Bar plot number of children",
-                                                     "Comparative number of childre","Bar plot family status", "Pie chart family status",
+                                                     "Comparative number of children","Bar plot family status", "Pie chart family status",
                                                      "Risky people account", "Housing state","Types of jobs",
-                                                     "Annual amount and risk","Boxplot of income","Boxplot of working years",
-                                                     "Boxplot of family members"])
+                                                     "Annual amount and risk","Box plot of income",
+                                                     ])
 
     # Prepara el espacio para mostrar la gráfica
     fig, ax = plt.subplots()
@@ -53,111 +55,154 @@ def run():
         # Mostrar el gráfico en Streamlit
         st.plotly_chart(fig_gen)
         st.write("Look at the the number of people by gender")
-        """
-          # Gráfico 1: Distribución de género
-        ax.bar(df['CODE_GENDER'].value_counts().index, df['CODE_GENDER'].value_counts().values)
-        ax.set_xlabel('Gender')
-        ax.set_ylabel('Number of people')
-        ax.set_title('Distribution of Gender')
-        st.write("This chart displays the distribution of the number of children per household.")
-        """
         
-        
-       
-     
         
     elif selected_chart == "Bar plot realty":
         # Gráfico 2: Distribución de la propiedad de vivienda
-        ax.bar(df['FLAG_OWN_REALTY'].value_counts().index, df['FLAG_OWN_REALTY'].value_counts().values)
-        ax.set_xlabel('Owns Realty')
-        ax.set_ylabel('Number of people')
-        ax.set_title('Distribution of Owns Realty')
-        st.write("This chart displays the distribution of the number of children per household.")
+        realty_counts = df['FLAG_OWN_REALTY'].value_counts()
+        color_realty = ['green', 'red']
+        
+        fig_realty = go.Figure(data=[
+            go.Bar(x=realty_counts.index, y=realty_counts.values, marker_color=color_realty)
+        ])
+        
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_realty.update_layout(
+            title='Distribution of Owns Realty',
+            xaxis=dict(title='Owns Realty', tickangle=45),
+            yaxis=dict(title='Count'),
+            showlegend=False
+        )
+    
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_realty)
+        st.write("This chart displays the distribution of owns realty.")
         
     elif selected_chart == "Bar plot number of children":
-        # Gráfico 3: Distribución del número de hijos
-        ax.bar(df['CNT_CHILDREN'].value_counts().index, df['CNT_CHILDREN'].value_counts().values)
-        ax.set_xlabel('Number of children')
-        ax.set_ylabel('Number of people')
-        ax.set_title('Distribution of Number of Children')
-        st.write("This chart displays the distribution of the number of children per household.")
+        # Filtrar los datos para mostrar solo hasta 10 hijos
+        df_filtered = df[df['CNT_CHILDREN'] <= 10]
+        children_counts = df_filtered['CNT_CHILDREN'].value_counts().sort_index()
+        color_children = px.colors.qualitative.Plotly
+        
+        fig_children = go.Figure(data=[
+            go.Bar(x=children_counts.index, y=children_counts.values, marker_color=color_children[:len(children_counts)])
+        ])
+        
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_children.update_layout(
+            title='Distribution of Number of Children',
+            xaxis=dict(title='Number of Children (up to 10)', tickangle=45),
+            yaxis=dict(title='Count'),
+            showlegend=False
+        )
+    
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_children)
+        st.write("This chart displays the distribution of the number of children per household (up to 10 children).")
     
     elif selected_chart == "Comparative number of children":
         df_few_children = df[df['CNT_CHILDREN'] <= 3]
         df_many_children = df[df['CNT_CHILDREN'] > 3]
 
-        # Crear una figura con dos subplots
-        fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+        few_children_counts = df_few_children['CNT_CHILDREN'].value_counts().sort_index()
+        many_children_counts = df_many_children['CNT_CHILDREN'].value_counts().sort_index()
+        
+        fig_comparative = make_subplots(rows=1, cols=2, subplot_titles=('Less than or equal to 3 children', 'More than 3 children'))
 
-        # Graficar el primer subplot: menos de 4 hijos
-        axs[0].bar(df_few_children['CNT_CHILDREN'].value_counts().index, df_few_children['CNT_CHILDREN'].value_counts().values)
-        axs[0].set_title('Menos de 3 hijos')
-        axs[0].set_xlabel('Número de hijos')
-        axs[0].set_ylabel('Número de personas')
+        # Añadir el primer subplot: menos de 4 hijos
+        fig_comparative.add_trace(
+            go.Bar(x=few_children_counts.index, y=few_children_counts.values, marker_color='blue'),
+            row=1, col=1
+        )
 
-        # Graficar el segundo subplot: más de 3 hijos
-        axs[1].bar(df_many_children['CNT_CHILDREN'].value_counts().index, df_many_children['CNT_CHILDREN'].value_counts().values)
-        axs[1].set_title('Más de 3 hijos')
-        axs[1].set_xlabel('Número de hijos')
-        axs[1].set_ylabel('Número de personas')
+        # Añadir el segundo subplot: más de 3 hijos
+        fig_comparative.add_trace(
+            go.Bar(x=many_children_counts.index, y=many_children_counts.values, marker_color='red'),
+            row=1, col=2
+        )
+
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_comparative.update_layout(
+            title_text='Comparative Number of Children',
+            xaxis=dict(title='Number of Children', tickangle=0),
+            yaxis=dict(title='Count'),
+            showlegend=False
+        )
     
-    elif selected_chart == "Bar plot family status":
-        # Gráfico 1: Gráfico de barras del estado civil
-        family_status_counts = df['NAME_FAMILY_STATUS'].value_counts()
-        colors_status_fam = plt.cm.tab10.colors[:len(family_status_counts)]
-        ax.bar(family_status_counts.index, family_status_counts.values, color=colors_status_fam)
-        ax.set_xlabel('Family Status')
-        ax.set_ylabel('Count')
-        ax.set_title('Distribution of Family Status')
-        # Rotar etiquetas del eje x para mayor legibilidad
-        #ax.tick_params(axis='x', rotation=45, alignment='right')
-        ax.set_xticklabels(family_status_counts.index, rotation=45, ha='right')
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_comparative)
+        st.write("This chart compares the distribution of the number of children per household.")
+    
+    
 
-        # Muestra la gráfica en Streamlit
-        st.write("This chart displays the distribution of family status.")
-        #st.pyplot(fig)
-        
-        
         
     elif selected_chart == "Pie chart family status":
-        #family_status_counts = None
-        #family_status_counts = df['NAME_FAMILY_STATUS'].value_counts()
-        colors = plt.cm.tab10.colors
-        explode = [0.1] * len(df['NAME_FAMILY_STATUS'].value_counts())
-        plt.pie(df['NAME_FAMILY_STATUS'].value_counts(), labels=df['NAME_FAMILY_STATUS'].value_counts().index, 
-                autopct='%1.1f%%', colors=colors, explode=explode)
-        plt.title('Family Status of Individuals')
-        plt.axis('equal')
-        # Muestra la gráfica en Streamlit
+        # Calcular el conteo de estados civiles
+        family_status_counts = df['NAME_FAMILY_STATUS'].value_counts()
+
+        # Configurar los colores para cada segmento del gráfico
+        colors = px.colors.qualitative.Plotly
+
+        # Crear el gráfico circular (pie chart) con Plotly
+        fig_pie = go.Figure(data=[
+            go.Pie(labels=family_status_counts.index, values=family_status_counts.values, 
+                textinfo='label+percent', marker=dict(colors=colors))
+        ])
+
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_pie.update_layout(
+            title='Family Status of Individuals',
+            showlegend=False,
+            width=750,
+            height=550,
+        )
+
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_pie)
         st.write("This chart displays the distribution of family status.")
     
     elif selected_chart == "Risky people account":
-        colors_risky= plt.cm.tab10.colors[:len(df.iloc[:,-1])]
-
-        risky_counts = df.iloc[:,-1].value_counts()
-
-        plt.figure(figsize=(10, 6))  # Ajustar el tamaño del gráfico si es necesario
-        plt.bar(risky_counts.index, risky_counts.values, color=colors_risky)
-        plt.xticks(rotation=45, ha='right')
-
-        plt.xlabel('Risky status')
-        plt.ylabel('Count')
-        plt.title('Number of people who has risk')
+        colors_risky = px.colors.qualitative.Plotly
     
-    elif selected_chart == "Housing state":
-        # Gráfico 1: Gráfico de barras del estado civil
-        housing_counts = df['NAME_HOUSING_TYPE'].value_counts()
-        colors_housing = plt.cm.tab10.colors[:len(housing_counts)]
-        ax.bar(housing_counts.index, housing_counts.values, color=colors_housing)
-        ax.set_xlabel('Housing Status')
-        ax.set_ylabel('Count')
-        ax.set_title('Distribution of Housing Status')
-        # Rotar etiquetas del eje x para mayor legibilidad
-        #ax.tick_params(axis='x', rotation=45, alignment='right')
-        ax.set_xticklabels(housing_counts.index, rotation=45, ha='right')
+        # Calcular conteo de personas con riesgo
+        risky_counts = df1['Risky_1'].value_counts()
 
-        # Muestra la gráfica en Streamlit
-        st.write("This chart displays the distribution of family status.")
+        # Crear gráfico de barras con Plotly
+        fig_risky = go.Figure(data=[
+            go.Bar(x=risky_counts.index, y=risky_counts.values, marker_color=colors_risky)
+        ])
+
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_risky.update_layout(
+            title='Number of People with Risk',
+            xaxis=dict(title='Risky Status', tickangle=45),
+            yaxis=dict(title='Count'),
+            showlegend=False
+        )
+
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_risky)
+        st.write("This chart displays the number of people considered risky for being approved for a credit card")
+        
+    elif selected_chart == "Housing state":
+        # Gráfico 1: Gráfico de barras del tipo de vivienda
+        housing_counts = df['NAME_HOUSING_TYPE'].value_counts()
+
+        fig_housing = go.Figure(data=[
+            go.Bar(x=housing_counts.index, y=housing_counts.values, marker_color=px.colors.qualitative.Plotly)
+        ])
+
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_housing.update_layout(
+            title='Distribution of Housing Status',
+            xaxis=dict(title='Housing Status', tickangle=45),
+            yaxis=dict(title='Count'),
+            showlegend=False
+        )
+
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_housing)
+        st.write("This chart displays the distribution of housing status.")
         
     elif selected_chart == "Types of jobs":
         jobs_counts = df['OCCUPATION_TYPE'].value_counts()
@@ -185,52 +230,73 @@ def run():
         st.write("Look at the the most common type of jobs")
         
         
-        """
-        jobs_counts = df['OCCUPATION_TYPE'].value_counts()
-        colors_jobs = plt.cm.tab10.colors[:len(jobs_counts)]
-        ax.bar(jobs_counts.index, jobs_counts.values, color=colors_jobs)
-        ax.set_xlabel('Professions')
-        ax.set_ylabel('Count')
-        ax.set_title('Distribution of jobs')
-        # Rotar etiquetas del eje x para mayor legibilidad
-        #ax.tick_params(axis='x', rotation=45, alignment='right')
-        ax.set_xticklabels(jobs_counts.index, rotation=45, ha='right')
-        st.write("Look at the the most common type of jobs") 
-        
-        """
-        
+
     elif selected_chart == "Annual amount and risk":
-        # Gráfico de caja del ingreso total anual por riesgo de préstamo
-        plt.figure(figsize=(10, 7))
-        
-        # Crear listas para los datos 'No arriesgado' y 'Arriesgado'
-        no_arriesgado = df[df.iloc[:, -1] == 0]['AMT_INCOME_TOTAL']
-        arriesgado = df[df.iloc[:, -1] == 1]['AMT_INCOME_TOTAL']
-        
-        # Crear el gráfico de caja usando matplotlib
-        plt.boxplot([no_arriesgado, arriesgado], labels=['No arriesgado', 'Arriesgado'])
-        
-        plt.xlabel('Riesgo de Préstamo')
-        plt.ylabel('Ingreso Total Anual')
-        plt.title('Distribución de Ingreso Total Anual por Riesgo de Préstamo')
-        
-        st.write("Look at the the most common type of jobs")
-        st.pyplot(plt)
 
+        # Crear el gráfico de caja con Plotly
+        fig_risk = go.Figure()
+
+        # Añadir los box plots para cada categoría de riesgo
+        fig_risk.add_trace(go.Box(x=df1['Risky_1'][df1['Risky_1'] == 0],
+                                y=df1['AMT_INCOME_TOTAL'][df1['Risky_1'] == 0],
+                                name='No risky'))
+        fig_risk.add_trace(go.Box(x=df1['Risky_1'][df1['Risky_1'] == 1],
+                                y=df1['AMT_INCOME_TOTAL'][df1['Risky_1'] == 1],
+                                name='Risky'))
+
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_risk.update_layout(
+            title='Distribution of annual income per risk',
+            xaxis=dict(title='Risky of approving the loan', tickvals=[0, 1], ticktext=['Not risky', 'Risky']),
+            yaxis=dict(title='Total annual income'),
+            showlegend=True,
+            width=700,  # Ajustar el ancho del gráfico
+            height=500,  # Ajustar la altura del gráfico
+        )
+
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_risk)
+        st.write("This chart displays the distribution of annual income by loan risk.")
     
-    elif selected_chart == "Boxplot of family members":
-        figbox1 = px.box(df,x=df['NAME_FAMILY_STATUS'],y=df['CNT_FAM_MEMBERS'],
-                         title='bola')
+    elif selected_chart == "Boxplot of income":
         
-        #figbox = px.box(df,x=df['Make_Type'],y='Ewltp (g/km)',
-             #       color=df['Make_Type'],title='Distribution of emissions according to the brand')
-        st.write(figbox1)
-        
-        
+        mean = df1['AMT_INCOME_TOTAL'].mean()
+        std_dev = df1['AMT_INCOME_TOTAL'].std()
 
-    
-    # Rotar etiquetas del eje x para mayor legibilidad
-    #ax.tick_params(axis='x', rotation=45)
+        # Definir los límites
+        lower_limit = mean - 3 * std_dev
+        upper_limit = mean + 3 * std_dev
 
-    # Muestra la gráfica en Streamlit
-    st.pyplot(fig)
+        # Eliminar los outliers
+        df_income= df1[(df1['AMT_INCOME_TOTAL'] >= lower_limit) & (df1['AMT_INCOME_TOTAL'] <= upper_limit)]
+
+
+        # Crear el gráfico de caja con Plotly
+        fig_box_income = go.Figure()
+
+        # Añadir el box plot
+        fig_box_income.add_trace(go.Box(
+            y=df_income['AMT_INCOME_TOTAL'],
+            name='Income',
+        ))
+
+        # Personalizar el diseño y las etiquetas del gráfico
+        fig_box_income.update_layout(
+            title='Income Distribution',
+            yaxis=dict(title='Income'),
+            showlegend=False,
+            width=700,  # Ajustar el ancho del gráfico
+            height=500  # Ajustar la altura del gráfico
+        )
+
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_box_income)
+        st.write("This chart displays the distribution of income.")
+        st.write(f"Mean income: {mean}")
+        st.write(f"Standard deviation of income: {std_dev}")
+        st.write(f"Lower limit: {lower_limit}")
+        st.write(f"Upper limit: {upper_limit}")
+
+# Ejecutar la aplicación de Streamlit
+if __name__ == "__main__":
+    run()   
