@@ -1,53 +1,120 @@
 import streamlit as st 
-import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
-from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import cross_validate
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-
+from sklearn.metrics import accuracy_score, recall_score, f1_score, roc_curve, auc, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 title = "Testing the model"
 sidebar_name = "Models"
+
+def plot_roc(model, X_test, y_test):
+    # Obtener las probabilidades de predicción para la clase positiva
+    if hasattr(model, "predict_proba"):
+        y_prob = model.predict_proba(X_test)
+    else:
+        y_prob = model.decision_function(X_test)
+        
+    if y_prob.ndim > 1:  # Verificar si hay más de una dimensión
+        fpr0, tpr0, _ = roc_curve(y_test, y_prob[:, 0], pos_label=0)
+        fpr1, tpr1, _ = roc_curve(y_test, y_prob[:, 1], pos_label=1)
+    else:
+        fpr0, tpr0, _ = roc_curve(y_test, y_prob, pos_label=0)
+        fpr1, tpr1, _ = roc_curve(y_test, 1 - y_prob, pos_label=1)
+    
+    roc_auc0 = auc(fpr0, tpr0)
+    roc_auc1 = auc(fpr1, tpr1)
+    
+   
+    
+    # Plotear la curva ROC
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr0, tpr0, color='blue', label=f'ROC curve for Risky=0 (AUC = {roc_auc0:.2f})')
+    plt.plot(fpr1, tpr1, color='red', label=f'ROC curve for Risky=1 (AUC = {roc_auc1:.2f})')
+    plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.legend(loc='lower right')
+    plt.grid(True)
+    plt.tight_layout()
+    st.pyplot(plt)
+    
+
+
+def plot_confusion_matrix_table(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    cm = confusion_matrix(y_test, predictions)
+    cm_df = pd.DataFrame(cm, index=["Actual 0", "Actual 1"], columns=["Predicted 0", "Predicted 1"])
+    st.write("Confusion Matrix, table form:")
+    st.table(cm_df.style.set_properties(**{'font-size': '16pt', 'border-collapse': 'collapse'}))
+
+
+
+
 
 
 def run():
     
     df = pd.read_csv('df_good.csv')
-    numerical_data = df._get_numeric_data()
-    num_cols = numerical_data.columns
-
-    scaler = StandardScaler()
-    numercial_df = pd.DataFrame(scaler.fit_transform(numerical_data), columns= num_cols, index=df.index)
-    df_dummies = pd.get_dummies(data = df[["FLAG_OWN_REALTY","NAME_INCOME_TYPE","NAME_EDUCATION_TYPE",
-                                                   "NAME_FAMILY_STATUS","NAME_HOUSING_TYPE","OCCUPATION_TYPE",
-                                                   "Risky"]], drop_first = True)
-
-    df_num_features=df.select_dtypes(include=np.number)
-
-    df = pd.concat([df_num_features, df_dummies], axis = 1)
+    df.rename(columns={"Risky_1":"Risky"}, inplace=True)
     
+
     target = df['Risky']
     feats = df.drop('Risky', axis=1)
 
-    X_train, X_test, y_train, y_test = train_test_split(feats, target, test_size=0.2)
-    st.write(X_train)
-    st.write(X_test)
+    X_train, X_test, y_train, y_test = train_test_split(feats, target, test_size=0.2, random_state=42)
     
-    # 1. Entrenar el modelo
-    gbr_model = GradientBoostingRegressor()
-    gbr_model.fit(X_train, y_train)
+    model_name = st.selectbox("Choose Model", ['Logistic Regression', 'Support Vector Machine', 'Decision Tree Classifier', 'Random Forest Classifier',
+                                               'Gaussian Naive Bayes', 'Ada boost', 'Gradient Boosting Classifier'],key='model_selectbox')
+
+    model = None
     
-    # 2. Evaluar la precisión
-    y_pred = gbr_model.predict(X_test)
-    r2_gbr = r2_score(y_test)
-    st.write("Using the Gradient Boost Regressor")
-    #st.write(r2_gbr)
-    st.write(y_train.shape)
-    st.write(y_test.shape)
+    # Crear los modelos según la selección del usuario
+    if model_name == 'Logistic Regression':
+        model = LogisticRegression()
+    elif model_name == 'Support Vector Machine':
+        model = SVC()
+    elif model_name == 'Decision Tree Classifier':
+        model = DecisionTreeClassifier()
+    elif model_name == 'Random Forest Classifier':
+        model = RandomForestClassifier()
+    elif model_name == 'Gaussian Naive Bayes':
+        model = GaussianNB()
+    elif model_name == 'Ada boost':
+        model = AdaBoostClassifier()
+    elif model_name == 'Gradient Boosting Classifier':
+        model = GradientBoostingClassifier()
+
+    # Entrenar el modelo
+    model.fit(X_train, y_train)
+
+    # Preddiciones
+    predictions = model.predict(X_test)
+
+    # Métricas de evaluación
+    metric = st.radio("Choose Metric", ('Accuracy', 'Recall', 'F1 Score'),key='metric_radio')
+
+    if metric == 'Accuracy':
+        value = accuracy_score(y_test, predictions)
+    elif metric == 'Recall':
+        value = recall_score(y_test, predictions)
+    elif metric == 'F1 Score':
+        value = f1_score(y_test, predictions)
+
+    st.write(f"Using the {model_name}, {metric} is: {value}")
     
+    
+    plot_roc(model, X_test, y_test)
+    
+    # Mostrar la matriz de confusión
+    plot_confusion_matrix_table(model, X_test, y_test)
+    
+
+run()
     
