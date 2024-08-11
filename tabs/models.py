@@ -9,7 +9,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from xgboost import XGBRegressor
+
 
 title = "Testing the model"
 sidebar_name = "Models"
