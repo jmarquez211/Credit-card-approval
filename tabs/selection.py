@@ -13,7 +13,7 @@ def run():
     
     
     # Load datasets
-    df_application = pd.read_csv('tabs/application_record.csv')
+    df_application = pd.read_csv('Credit-card-approval/tabs/application_record.csv')
     df_credit = pd.read_csv('credit_record.csv')
     
     # Process data
