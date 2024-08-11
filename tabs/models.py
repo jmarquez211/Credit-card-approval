@@ -8,7 +8,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 title = "Testing the model"
 sidebar_name = "Models"
