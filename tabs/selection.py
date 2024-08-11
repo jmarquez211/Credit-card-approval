@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
@@ -11,9 +11,21 @@ sidebar_name = "Selection"
 def run():
     st.markdown("Select your features and predict if you're acceptable for the credit")
     
+
+   
+
+    # Obtener la ruta absoluta del archivo actual
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Especificar la ruta completa al archivo CSV
+    file_path = os.path.join(base_dir, 'application_record.csv')
+    
+    # Cargar el archivo CSV
+    df_application = pd.read_csv(file_path)
+
     
     # Load datasets 
-    df_application = pd.read_csv('application_record.csv')
+    #df_application = pd.read_csv('application_record.csv')
     df_credit = pd.read_csv('credit_record.csv')
     
     # Process data
