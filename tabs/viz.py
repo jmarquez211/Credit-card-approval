@@ -200,16 +200,24 @@ def run():
         
         """
         
-    elif selected_chart == "Annual ammount and risk":
+    elif selected_chart == "Annual amount and risk":
         # Gráfico de caja del ingreso total anual por riesgo de préstamo
         plt.figure(figsize=(10, 7))
-        Risky = df.iloc[:,-1].value_counts()
-        sns.boxplot(x=Risky, y='AMT_INCOME_TOTAL', data=df)
+        
+        # Crear listas para los datos 'No arriesgado' y 'Arriesgado'
+        no_arriesgado = df[df.iloc[:, -1] == 0]['AMT_INCOME_TOTAL']
+        arriesgado = df[df.iloc[:, -1] == 1]['AMT_INCOME_TOTAL']
+        
+        # Crear el gráfico de caja usando matplotlib
+        plt.boxplot([no_arriesgado, arriesgado], labels=['No arriesgado', 'Arriesgado'])
+        
         plt.xlabel('Riesgo de Préstamo')
         plt.ylabel('Ingreso Total Anual')
         plt.title('Distribución de Ingreso Total Anual por Riesgo de Préstamo')
-        plt.xticks(ticks=[0, 1], labels=['No arriesgado', 'Arriesgado'])
+        
         st.write("Look at the the most common type of jobs")
+        st.pyplot(plt)
+
     
     elif selected_chart == "Boxplot of family members":
         figbox1 = px.box(df,x=df['NAME_FAMILY_STATUS'],y=df['CNT_FAM_MEMBERS'],
