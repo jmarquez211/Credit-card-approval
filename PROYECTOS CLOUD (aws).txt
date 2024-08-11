@@ -1,0 +1,30 @@
+PROYECTOS CLOUD (aws)
+https://www.youtube.com/watch?v=u8f0wyddNPU&list=PLWBfjpfzscb7rCHCeZHZgm5PgifCZdr1M&index=2
+
+1º Visualization data using Amazon Quicksight:
+
+- download a dataset of 50000 best selling Amazon products
+- store the dataset into an amazon S3 bucket
+- connect the S3 bucket with Amazon Quicksight to create visualizations
+
+
+2º Integrate Amazon Lex Chatbot with Facebook Messenger:
+- Create an Amazon Lex Chatbot with a name, voice, and session timeout
+- Create a Facebook Page and App through the Facebook Developer Portal
+- Set up a webhook to receive messages from Facebook users
+- Integrate the Amazon Lex Chatbot with Facebook Messenger
+- Test the chatbot and make any improvments
+
+
+-----------------------------------
+
+https://www.youtube.com/watch?v=F2eBGsReQP0
+
+
+------------------------------------
+
+web app architect : https://www.youtube.com/watch?v=7m_q1ldzw0U
+
+.................
+
+https://github.com/pariasm97/spotify-end-to-end-data-pipeline/tree/main

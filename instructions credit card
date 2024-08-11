@@ -1,0 +1,64 @@
+Understand dataset (application)
+
+
+ID: An identifier for each individual, typically a unique number assigned to each record.
+
+CODE_GENDER: Gender of the individual (e.g., "M" for male, "F" for female).
+
+FLAG_OWN_CAR: Indicates whether the individual owns a car (1 for yes, 0 for no).
+
+FLAG_OWN_REALTY: Indicates whether the individual owns real estate/property (1 for yes, 0 for no).
+
+CNT_CHILDREN: The count of children the individual has.
+
+AMT_INCOME_TOTAL: The total annual income of the individual.
+
+NAME_INCOME_TYPE: The type of income the individual receives (e.g., salary, business, maternity leave).
+
+NAME_EDUCATION_TYPE: The highest level of education attained by the individual.
+
+NAME_FAMILY_STATUS: The family status of the individual (e.g., married, single).
+
+NAME_HOUSING_TYPE: The type of housing the individual lives in (e.g., own apartment, for free).
+
+DAYS_BIRTH: The age of the individual in days (negative values representing days in the past).
+
+DAYS_EMPLOYED: The number of days the individual has been employed (negative values representing days in the past). This might be unusual because employment duration is typically positive, so you may need to investigate the dataset or consider the sign convention used.
+
+FLAG_MOBIL: Indicates whether the individual has a mobile phone (1 for yes, 0 for no).
+
+FLAG_WORK_PHONE: Indicates whether the individual has a work phone (1 for yes, 0 for no).
+
+FLAG_PHONE: Indicates whether the individual has a phone (1 for yes, 0 for no).
+
+FLAG_EMAIL: Indicates whether the individual has an email (1 for yes, 0 for no).
+
+OCCUPATION_TYPE: The type of occupation the individual is engaged in.
+
+CNT_FAM_MEMBERS: The count of family members.
+
+----------------------------------------------
+
+
+Understand dataset (credit)
+ID: An identifier for each individual, likely a unique number assigned to each record.
+
+MONTHS_BALANCE: This column probably represents the month of the record in relation to some reference point. It could be a relative month, indicating the number of months before or after a specific event or time. Positive values may represent months after a reference point, while negative values may represent months before.
+
+STATUS: This column likely contains information about the credit status of the individual for a particular month. The "STATUS" column might include different codes or labels indicating the credit performance or behavior of the individual in that specific month. For example, it could include values like "C" for closed, "D" for overdue, "0" for no DPD (Days Past Due), etc. The exact codes used would depend on the data provider or the system used to record credit status.
+
+
+
+
+
+----------------------------
+
+
+más info:
+
+https://semasuka.github.io/blog/2022/10/12/credit-card-approval-prediction.html
+
+
+https://www.listendata.com/2019/09/credit-risk-vintage-analysis.html
+
+
