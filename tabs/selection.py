@@ -12,8 +12,8 @@ def run():
     st.markdown("Select your features and predict if you're acceptable for the credit")
     
     
-    # Load datasets
-    df_application = pd.read_csv('application_record.csv')
+    # Load datasets 
+    df_application = pd.read_csv('https://github.com/jmarquez211/Credit-card-approval/blob/main/tabs/application_record.csv')
     df_credit = pd.read_csv('credit_record.csv')
     
     # Process data
