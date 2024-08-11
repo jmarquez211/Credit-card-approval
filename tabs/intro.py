@@ -1,132 +1,78 @@
 import streamlit as st
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-#from xgboost import XGBRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import pandas as pd
-import numpy as np
 
 
 title = "Approval risk"
-sidebar_name ="Context"
+sidebar_name = "Context"
 
 def run():
+    st.title("Could I get a credit card?")
     
-    st.markdown('Prediction of credit approval')
-    #st.image('/home/jmarquez211/Projects/Python/Tutoriales/Gradient Boosting/creditcard/tabs')
     
-    st.markdown(
-    """
-    Here are the principal features you can select if you want
-    to know if the credit will be approved or not.
-    """
-    )
     
-    #df = pd.read_csv('df_good.csv')
+    st.markdown(""" 
+                
+                Have you ever wondered what one can need to get a credit card?
+                
+                Are there many prerequisites? 
+                
+                How can I know if I could been approved to obtain that credit? 
+                
+                Do I need a lot of saved money?
+                
+                
+                Shall I need to be married? 
+                
+                """)
+    
+    
+    st.image("/home/jmarquez211/Escritorio/creditcard/tabs/images/credit_card_approved.png")
+    
+    st.markdown("## The main goal of this project")
+    
+    st.markdown("""
+                Throughout the sections the user will be able to navigate and select different kind of plots,
+                features, models of machine learning in order to determinate if with some specific characteristics someone
+                can be selected to obtain the credit card.
+                
+        Here are the principal features you can select if you want
+        to know if the credit will be approved or not.
+    """)
+
+    # Cargar datos
     df_application = pd.read_csv('application_record.csv')
-    df_credit = pd.read_csv('credit_record.csv')
-    starter_month=pd.DataFrame(df_credit.groupby(['ID'])['MONTHS_BALANCE'].agg(min))
-    starter_month=starter_month.rename(columns={'MONTHS_BALANCE':'Account day'})
-    df_application=pd.merge(df_application,starter_month,how='left',on='ID')
-
-    df_credit['dep_value'] = None
-    df_credit['dep_value'][df_credit['STATUS'] =='2']='Yes'
-    df_credit['dep_value'][df_credit['STATUS'] =='3']='Yes'
-    df_credit['dep_value'][df_credit['STATUS'] =='4']='Yes'
-    df_credit['dep_value'][df_credit['STATUS'] =='5']='Yes'
-
-    cpunt=df_credit.groupby('ID').count()
-    cpunt['dep_value'][cpunt['dep_value'] > 0]='Yes'
-    cpunt['dep_value'][cpunt['dep_value'] == 0]='No'
-    cpunt = cpunt[['dep_value']]
-
-    df_application = pd.merge(df_application,cpunt,how='inner',on='ID')
-    df_application['Risky']=df_application['dep_value']
-    df_application.loc[df_application['Risky']=='Yes','Risky']=1
-    df_application.loc[df_application['Risky']=='No','Risky']=0
-    df_application.drop('dep_value',axis=1,inplace=True)
-    df_application.drop('ID',axis=1,inplace=True)
-    df_application['OCCUPATION_TYPE'].fillna(df_application['OCCUPATION_TYPE'].mode()[0], inplace=True)
     
     st.write(df_application.head())
     
     
-    df = pd.read_csv('df_good.csv')
-
-    df_dummies = pd.get_dummies(data = df[["FLAG_OWN_REALTY","NAME_INCOME_TYPE","NAME_EDUCATION_TYPE",
-                                                   "NAME_FAMILY_STATUS","NAME_HOUSING_TYPE","OCCUPATION_TYPE",
-                                                   "Risky"]], drop_first = True)
-
-    df_num_features=df.select_dtypes(include=np.number)
-
-    df = pd.concat([df_num_features, df_dummies], axis = 1)
-    
-    target = df['Risky']
-    feats = df.drop('Risky', axis=1)
-    
-    
-
-    X_train, X_test, y_train, y_test = train_test_split(feats, target, test_size=0.2)
-    #st.write(y_train)
-    #st.write(y_test)
-    y_train = np.ravel(y_train)
-    y_test = np.ravel(y_test)
-    gradient_boosting_model = GradientBoostingRegressor(random_state=42)
-    gradient_boosting_model.fit(X_train, y_train)
-    #st.write(y_test.shape)
-    gb_predictions = gradient_boosting_model.predict(X_test)
-    
-    
-    
-    alpha_model = ['Gradient Boosting Regressor','Random Forest Regressor']
-    
-    def use_model(model_name):
-        if model_name == "Gradient Boosting Regressor":
-            #alpha = st.selecbox("Select the model:",alpha_model)
-            return 
-        elif model_name == "Random Forest Regressor":
-            alpha = st.selecbox("Select the model:",alpha_model)
-    
-    # Function to obtain the metric selected by the user
-    def get_scoring_metric(model_name):
-        if model_name in ["GBR", "Random Forest Regressor"]:
-            
-            return st.radio("Select scoring metric", ["score", "mean_squared_error"])
-            
-    
-    model_name = st.selectbox("Selec the model for predictions",["Gradient Boost","Random Forest"])
-    model = use_model(model_name)
-    
-    if model_name in ["Gradient Boosting Regressor", "Random Forest Regressor"]:
-        # showing the metrics for each model
-        scoring_metric = get_scoring_metric(model_name)
-        
-        if scoring_metric:
-            
-            st.write("Selected scoring metric:", scoring_metric)
-    
-    if st.button("Show results"):
-        st.write("Results: ")
-        
-        model.fit(X_train,y_train)
-        predictions = model.predict(X_test)
-        
-        if scoring_metric:
-            if scoring_metric == "score" or scoring_metric == "mean_squared_error":
-                score = model.score(X_test, y_test)
-                st.write("Score:", score)
+    st.markdown("""
                 
-                # this is a dataframe, to show it better
-                df_pred = pd.DataFrame({"Predictions": predictions})
-        
-                # a little changes for representation
-                df_pred = df_pred.rename(columns={"Predictions": "Risky"})
-                st.write('The predictions for every car are:')
-                st.write(df_pred)
-                
-            elif scoring_metric == "r2_score":
-                r2 = r2_score(y_test, predictions)
-                st.write("R2 Score:", r2)
-    
-    st.markdown('---')
+                ### Project Introduction
+
+                Welcome to our Credit Approval Prediction System. This project is designed to help individuals and financial institutions assess the likelihood of credit approval based on a variety of personal and financial factors. Using advanced machine learning techniques, we analyze extensive datasets to provide an informed prediction about an applicant's creditworthiness.
+
+                #### What This Project Does
+
+                1. **Data Integration**:
+                - We combine data from multiple sources, including application records and credit history, to build a comprehensive profile of each applicant.
+
+                2. **Feature Analysis**:
+                - Key variables such as income, employment status, age, and asset ownership are considered to determine their impact on credit approval.
+
+                3. **Model Training and Evaluation**:
+                - Two robust machine learning models, the Gradient Boosting Classifier and AdaBoost Classifier, are trained and evaluated to ensure accurate predictions.
+
+                4. **User Interaction**:
+                - Through an intuitive Streamlit interface, users can input their details and receive immediate feedback on their credit approval status.
+                - Features like sliders and drop-down menus make it easy for users to enter relevant information and understand the outcome.
+
+                #### How to Use This App
+
+                - **Step 1**: Select your features using the sliders and drop-down menus provided. These features include your income, age, years of work experience, and ownership of assets like cars and realty.
+                - **Step 2**: Choose the machine learning model you prefer: Gradient Boosting Classifier or AdaBoost Classifier.
+                - **Step 3**: Click on the "Show Results" button to get an instant prediction of your credit approval status.
+
+                This project aims to demystify the credit approval process and provide users with a transparent and accessible way to understand their credit profiles. While the system offers valuable insights, it's important to remember that these predictions are based on statistical models and should be considered as one of many tools in assessing creditworthiness.
+
+                We hope this tool helps you gain a better understanding of how credit decisions are made and what factors are most influential. Thank you for using our Credit Approval Prediction System!
+                    """)
