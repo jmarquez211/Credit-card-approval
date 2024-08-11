@@ -26,7 +26,7 @@ def run():
                 """)
     
     
-    st.image("/home/jmarquez211/Escritorio/creditcard/tabs/images/credit_card_approved.png")
+    st.image("tabs/images/credit_card_approved.png")
     
     st.markdown("## The main goal of this project")
     
