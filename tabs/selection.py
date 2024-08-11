@@ -17,7 +17,7 @@ def run():
 
     
     # Load datasets 
-    #df_application = pd.read_csv('application_record.csv')
+    df_application = pd.read_csv('application_record.csv')
     df_credit = pd.read_csv('credit_record.csv')
     
     # Process data
