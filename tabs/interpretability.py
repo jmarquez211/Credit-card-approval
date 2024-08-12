@@ -22,7 +22,7 @@ def run():
              across all the samples.
              """)
     
-    st.image("/home/jmarquez211/Escritorio/creditcard/tabs/images/shapvalues.png",width=550)
+    st.image("images/shapvalues.png",width=550)
     
     st.subheader("Interpreteting the bars")
     st.markdown(""" The length of each bar represents the average magnitude of the SHAP values for that feature.
@@ -55,7 +55,7 @@ def run():
                 The SHAP beeswarm plot is designed to show the distribution of SHAP values for each feature across all samples in the dataset.
                 It provides a comprehensive view of how each feature affects the model’s predictions, highlighting both the importance and the direction of the impact.
                 """)
-    st.image("/home/jmarquez211/Escritorio/creditcard/tabs/images/shap1.png",width=800)
+    st.image("images/shap1.png",width=800)
     
     st.markdown(""" ### Understanding the SHAP Beeswarm Plot""")
     
