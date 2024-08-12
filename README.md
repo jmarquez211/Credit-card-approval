@@ -1,4 +1,4 @@
-Credit Card Approval
+# Credit Card Approval
 Welcome to the Credit Card Approval project! This repository contains everything you need to understand and explore the process of credit card approval through data analysis, machine learning, and interpretability techniques. Whether you're a data enthusiast, a machine learning practitioner, or someone simply curious about how credit card approvals work, this project offers a comprehensive and accessible approach.
 
 Project Overview
