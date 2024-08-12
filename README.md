@@ -14,7 +14,7 @@ df_good.csv: This is the cleaned and processed dataset, derived from the two mai
 ## Web Application
 To make the insights and models more accessible, we've created a web application using Streamlit. This app allows users to interact with the data, visualize key features, and explore the machine learning models used in the project.
 
-You can access the web application here: Credit Card Approval App
+You can access the web application here: [Credit Card Approval App](https://credit-card-approval.streamlit.app/)
 
 ## Features
   Data Exploration: Explore the datasets, understand the distribution of features, and gain insights through visualizations.
